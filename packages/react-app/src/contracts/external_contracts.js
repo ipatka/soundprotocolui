@@ -1,3 +1,7 @@
+const RedemptionMinter = require("./RedemptionMinter");
+const EditionMaxMinter = require("./EditionMaxMinter");
+const SoundEdition = require("./SoundEdition");
+
 const ERC20ABI = [
   {
     constant: true,
@@ -795,6 +799,26 @@ module.exports = {
       UNI: {
         address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
         abi: ERC20ABI,
+      },
+    },
+  },
+  5: {
+    contracts: {
+      RedemptionMinter: {
+        address: "0x9cECb83bd342E17AA89C83599425257b92a9F338",
+        abi: RedemptionMinter,
+      },
+      EditionMinter: {
+        address: "0x5E5d50Ea70c9a1B6ED64506F121b094156B8Fd20",
+        abi: EditionMaxMinter,
+      },
+      SongEdition: {
+        address: "0x565AD8CB12Bb112891615b581034dB687ff910db",
+        abi: SoundEdition,
+      },
+      AlbumEdition: {
+        address: "0xA64e1BD6aA6Ee861b77947ff2f5653247787220F",
+        abi: SoundEdition,
       },
     },
   },

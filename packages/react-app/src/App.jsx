@@ -9,6 +9,7 @@ import {
   // useOnBlock,
   useUserProviderAndSigner,
 } from "eth-hooks";
+import { gql, useQuery } from "@apollo/client";
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
@@ -54,7 +55,7 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, goerli, xdai, mainnet)
+const initialNetwork = NETWORKS.goerli; // <------- select your target frontend network (localhost, goerli, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -167,17 +168,35 @@ function App(props) {
   //   console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
   // });
 
-  // Then read your DAI balance like:
-  const myMainnetDAIBalance = useContractReader(
-    mainnetContracts,
-    "DAI",
-    "balanceOf",
-    ["0x34aA3F359A9D614239015126635CE7732c18fDF3"],
-    mainnetProviderPollingTime,
-  );
+  const EXAMPLE_GRAPHQL = `query getTokens($address: String)
+  {
+    tokens {
+      id
+      owner {
+        address
+      }
+      tokenId
+    }
+    holders {
+      address
+    }
+    holder(id: $address) {
+      tokens {
+        tokenId
+      }
+    }
+  }
+  `;
+  const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+  const EXAMPLE_GQL = gql(EXAMPLE_GRAPHQL);
+  const { loading, error, data } = useQuery(EXAMPLE_GQL, {
+    pollInterval: 2500,
+    variables: {
+      address: address ? address.toLowerCase() : ZERO_ADDRESS,
+    },
+  });
 
-  // keep track of a variable from the contract in the local React state:
-  const purpose = useContractReader(readContracts, "YourContract", "purpose", [], localProviderPollingTime);
+  console.log({ loading, error, data });
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -208,7 +227,6 @@ function App(props) {
       console.log("💵 yourMainnetBalance", yourMainnetBalance ? ethers.utils.formatEther(yourMainnetBalance) : "...");
       console.log("📝 readContracts", readContracts);
       console.log("🌍 DAI contract on mainnet:", mainnetContracts);
-      console.log("💵 yourMainnetDAIBalance", myMainnetDAIBalance);
       console.log("🔐 writeContracts", writeContracts);
     }
   }, [
@@ -221,7 +239,6 @@ function App(props) {
     writeContracts,
     mainnetContracts,
     localChainId,
-    myMainnetDAIBalance,
   ]);
 
   const loadWeb3Modal = useCallback(async () => {
@@ -356,9 +373,9 @@ function App(props) {
             yourLocalBalance={yourLocalBalance}
             price={price}
             tx={tx}
+            graphdata={data}
             writeContracts={writeContracts}
             readContracts={readContracts}
-            purpose={purpose}
           />
         </Route>
         <Route path="/mainnetdai">
